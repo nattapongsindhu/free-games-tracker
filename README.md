@@ -1,8 +1,24 @@
 # Free Games Tracker
-HEAD
 
+[![CI](https://github.com/nattapongsindhu/free-games-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/nattapongsindhu/free-games-tracker/actions/workflows/ci.yml)
+[![Scheduled Sync](https://github.com/nattapongsindhu/free-games-tracker/actions/workflows/scheduled-sync.yml/badge.svg)](https://github.com/nattapongsindhu/free-games-tracker/actions/workflows/scheduled-sync.yml)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
 
-Track free game giveaways and subscription game drops from:
+Track free game drops like a loot radar.
+
+This app watches free game offers and subscription drops across major storefronts, then puts them into one clean board so you can quickly see:
+
+- what is free right now
+- what is coming soon
+- what already expired
+- which offers are true giveaways vs subscription perks
+
+## Mission
+
+Free Games Tracker is built for players who do not want to miss time-limited drops from:
 
 - Epic Games Store
 - Steam
@@ -10,124 +26,56 @@ Track free game giveaways and subscription game drops from:
 - GG.deals
 - IsThereAnyDeal
 
-## What It Does
+The goal is simple: less tab-juggling, more claiming.
 
-- Shows games that are free now
-- Shows upcoming offers
-- Shows ended offers
-- Displays offer start and end dates
-- Separates subscription offers from true free giveaways
+## What It Tracks
+
+| Source | What it tracks | Notes |
+| --- | --- | --- |
+| Epic Games Store | Free promotions and giveaway windows | Best source for weekly free claims |
+| Steam | Free-to-keep or 100% discount offers | Availability depends on upstream listing data |
+| PlayStation Plus | Subscription monthly games | Labeled separately from true giveaways |
+| GG.deals | Free and giveaway-style listings | May be rate-limited upstream |
+| IsThereAnyDeal | Aggregated deal data | Requires `ITAD_API_KEY` |
+
+## Core Features
+
+- Shows `Free Now`, `Upcoming`, `Ended`, and `Ending Soon`
+- Displays start and end dates for each offer
 - Deduplicates the same game across multiple sources
+- Preserves source links so you can claim from the right store
+- Separates subscription drops from real free giveaways
+- Includes manual sync support for development
+- Includes GitHub automation for CI and optional scheduled sync
 
-## Tech Stack
-
-- Next.js
-- TypeScript
-- Tailwind CSS
-- Jest
-548ed01 (feat: harden free games tracker and improve repo readiness)
-
-A web app for tracking free game giveaways and subscription game drops from multiple platforms in one place.
-
-HEAD
-## Overview
-
-Free Games Tracker collects and normalizes game offers from:
-
-- Epic Games Store
-- Steam
-- PlayStation Plus
-- GG.deals
-- IsThereAnyDeal
-
-The app is designed to help users quickly see:
-
-- which games are free right now
-- which offers are coming soon
-- which offers have already ended
-- when each offer starts and ends
-
-It also clearly separates true free giveaways and 100% discount offers from subscription-included games such as PlayStation Plus.
-
-## Features
-
-- Aggregate free game offers from multiple sources
-- Show offer status:
-  - Active
-  - Upcoming
-  - Ended
-- Show start date and end date for each listing
-- Separate subscription-based offers from true free giveaways
-- Deduplicate overlapping offers across sources
-- Preserve source/store links for each listing
-- Highlight ending soon offers
-- Highlight upcoming offers
-- Manual sync endpoint for refreshing data
-
-## Supported Sources
-
-- **Epic Games Store**
-  - Tracks free promotions and giveaway windows
-- **Steam**
-  - Tracks free promotions and free-to-keep offers when available
-- **PlayStation Plus**
-  - Tracks subscription-included monthly titles
-- **GG.deals**
-  - Tracks free and discounted game listings
-- **IsThereAnyDeal**
-  - Tracks deal aggregation and giveaway-related listings
-
-## Tech Stack
+## Stack
 
 - Next.js
 - TypeScript
 - Tailwind CSS
 - Jest
 
-## Project Structure
+## Quick Start
 
-```text
-src/
-  app/
-    api/sync/route.ts
-    page.tsx
-    layout.tsx
-  components/
-    FilterBar.tsx
-    GameCard.tsx
-    SyncButton.tsx
-  lib/
-    adapters/
-      epic.ts
-      steam.ts
-      playstation.ts
-      ggdeals.ts
-      isthereanydeal.ts
-      index.ts
-    cache.ts
-    dedup.ts
-    status.ts
-    types.ts
-
-__tests__/
-  dedup.test.ts
-  status.test.ts
-=======
 Install dependencies:
 
 ```bash
 npm install
 ```
 
-Start the development server:
+Start the app:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open:
 
-## Available Scripts
+```text
+http://localhost:3000
+```
+
+## Scripts
 
 ```bash
 npm run dev
@@ -136,35 +84,60 @@ npm run test
 npm run build
 ```
 
-## GitHub Automation
-
-- `CI` runs on pushes and pull requests to `main`
-- `Scheduled Sync` runs every 12 hours and can also be triggered manually
-- Set `APP_BASE_URL` in GitHub Actions secrets to enable scheduled sync calls
-- Set `SYNC_API_KEY` in GitHub Actions secrets if your deployed `/api/sync` endpoint is protected
-
 ## Environment Variables
 
-`ITAD_API_KEY`
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `ITAD_API_KEY` | No | Enables IsThereAnyDeal data |
+| `SYNC_API_KEY` | Recommended in production | Protects the `/api/sync` endpoint |
 
-- Optional
-- Used for the IsThereAnyDeal adapter
-- If missing, the app skips that source without failing the whole sync
+Production sync requests can send the key with either:
 
-`SYNC_API_KEY`
+- `x-sync-key: <value>`
+- `Authorization: Bearer <value>`
 
-- Recommended for production
-- Protects the manual `/api/sync` refresh endpoint
-- Send it with `x-sync-key` or `Authorization: Bearer <key>`
+## Automation
 
-## Notes
+### CI
 
-- Some sources use public APIs, while others rely on lightweight HTML parsing.
-- Source markup may change over time, so adapters should be treated as maintenance points.
-- PlayStation Plus entries are intentionally labeled as subscription offers instead of true giveaways.
-- The browser sync button is development-only. Public deployments should use protected server-side calls or automation.
+The `CI` workflow runs on:
+
+- pushes to `main`
+- pull requests to `main`
+- manual workflow dispatch
+
+It runs:
+
+- lint
+- test
+- build
+
+### Scheduled Sync
+
+The `Scheduled Sync` workflow runs every 12 hours and can also be triggered manually.
+
+To enable it fully, set these GitHub Actions secrets:
+
+- `APP_BASE_URL`
+- `SYNC_API_KEY` if your deployed sync endpoint is protected
+
+If `APP_BASE_URL` is not set, the workflow safely skips itself.
+
+## Notes From The Field
+
+- Some sources use public APIs, others rely on lightweight HTML parsing.
+- Upstream sites can change markup or add rate limits without warning.
+- GG.deals may occasionally reject requests with `403`.
+- If `ITAD_API_KEY` is missing, the app skips that source without breaking the rest of the board.
+- In production, the browser sync button is hidden by design.
+
+## Next Quests
+
+- Add persistent storage for historical offer tracking
+- Improve adapter resilience against upstream markup changes
+- Add richer filtering and store-specific views
+- Add alerts for new drops and expiring offers
 
 ## License
 
 MIT
-548ed01 (feat: harden free games tracker and improve repo readiness)

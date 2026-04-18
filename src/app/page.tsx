@@ -8,7 +8,6 @@ import { FilterBar } from '@/components/FilterBar'
 import { SyncButton } from '@/components/SyncButton'
 
 const ALL_STORES: StoreId[] = ['epic', 'steam', 'playstation', 'ggdeals', 'isthereanydeal']
-const ALL_STATUSES: OfferStatus[] = ['active', 'upcoming', 'ended']
 
 function Section({ title, offers }: { title: string; offers: GameOffer[] }) {
   if (offers.length === 0) return null
@@ -83,7 +82,12 @@ export default function Home() {
             Giveaways and free offers from Epic, Steam, PlayStation, GG.deals, and IsThereAnyDeal
           </p>
         </div>
-        <SyncButton onSync={fresh => setOffers(fresh)} />
+        <SyncButton
+          onSync={({ offers: fresh, errors: syncErrors }) => {
+            setOffers(fresh)
+            setErrors(syncErrors)
+          }}
+        />
       </div>
 
       {errorEntries.length > 0 && (

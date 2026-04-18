@@ -15,6 +15,8 @@ const adapters: { name: string; fn: AdapterFn }[] = [
   { name: 'isthereanydeal', fn: fetchITADOffers },
 ]
 
+export const ADAPTER_NAMES = adapters.map(adapter => adapter.name)
+
 export interface FetchResult {
   offers: GameOffer[]
   errors: Record<string, string>

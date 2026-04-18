@@ -39,6 +39,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local AI tooling
+.claude/settings.local.json
+/free-games-tracker-audit-plan-checklist-word.docx
+/~$*.docx
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -13,14 +13,16 @@ interface CacheData {
 // Module-level memory cache survives across requests in the same process
 let memCache: CacheData | null = null
 
-export async function getCached(): Promise<GameOffer[] | null> {
-  if (memCache && Date.now() - memCache.fetchedAt < TTL_MS) {
+export async function getCached(options: { allowStale?: boolean } = {}): Promise<GameOffer[] | null> {
+  const { allowStale = false } = options
+
+  if (memCache && (allowStale || Date.now() - memCache.fetchedAt < TTL_MS)) {
     return memCache.offers
   }
   try {
     const raw = await fs.readFile(CACHE_FILE, 'utf-8')
     const data: CacheData = JSON.parse(raw)
-    if (Date.now() - data.fetchedAt < TTL_MS) {
+    if (allowStale || Date.now() - data.fetchedAt < TTL_MS) {
       memCache = data
       return data.offers
     }

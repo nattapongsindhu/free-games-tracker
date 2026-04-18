@@ -1,10 +1,11 @@
 import { GameOffer } from './types'
+import { computeStatus } from './status'
 
 export function normalizeTitle(title: string): string {
   return title.toLowerCase().replace(/[^a-z0-9]/g, '')
 }
 
-export function deduplicateOffers(offers: GameOffer[]): GameOffer[] {
+export function deduplicateOffers(offers: GameOffer[], now: Date = new Date()): GameOffer[] {
   const map = new Map<string, GameOffer>()
   for (const offer of offers) {
     const key = normalizeTitle(offer.title)
@@ -32,5 +33,9 @@ export function deduplicateOffers(offers: GameOffer[]): GameOffer[] {
       existing.thumbnail = offer.thumbnail
     }
   }
-  return Array.from(map.values())
+
+  return Array.from(map.values()).map(offer => ({
+    ...offer,
+    status: computeStatus(offer.startDate, offer.endDate, now),
+  }))
 }

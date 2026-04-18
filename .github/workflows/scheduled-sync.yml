@@ -1,0 +1,45 @@
+name: Scheduled Sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */12 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scheduled-sync-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  trigger-sync:
+    runs-on: ubuntu-latest
+    env:
+      APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+      SYNC_API_KEY: ${{ secrets.SYNC_API_KEY }}
+
+    steps:
+      - name: Skip when deployment URL is not configured
+        if: ${{ env.APP_BASE_URL == '' }}
+        run: echo "APP_BASE_URL is not configured. Skipping scheduled sync."
+
+      - name: Trigger sync endpoint
+        if: ${{ env.APP_BASE_URL != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          url="${APP_BASE_URL%/}/api/sync"
+          echo "Triggering sync against ${url}"
+
+          if [ -n "${SYNC_API_KEY:-}" ]; then
+            curl --fail --silent --show-error \
+              -X POST \
+              -H "x-sync-key: ${SYNC_API_KEY}" \
+              "$url"
+          else
+            curl --fail --silent --show-error \
+              -X POST \
+              "$url"
+          fi

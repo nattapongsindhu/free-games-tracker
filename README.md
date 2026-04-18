@@ -1,27 +1,86 @@
 # Free Games Tracker
 
-Track free game giveaways and subscription game drops from multiple sources in one place.
+A web app for tracking free game giveaways and subscription game drops from multiple platforms in one place.
+
+## Overview
+
+Free Games Tracker collects and normalizes game offers from:
+
+- Epic Games Store
+- Steam
+- PlayStation Plus
+- GG.deals
+- IsThereAnyDeal
+
+The app is designed to help users quickly see:
+
+- which games are free right now
+- which offers are coming soon
+- which offers have already ended
+- when each offer starts and ends
+
+It also clearly separates true free giveaways and 100% discount offers from subscription-included games such as PlayStation Plus.
 
 ## Features
 
-- Track free games from Epic Games Store
-- Track free and discounted offers from Steam
-- Track PlayStation Plus monthly games separately from true giveaways
-- Aggregate listings from GG.deals and IsThereAnyDeal
-- Show offer status: Active, Upcoming, Ended
-- Show start date and end date for each offer
-- Highlight ending soon and upcoming offers
-- Deduplicate games across sources while preserving source links
+- Aggregate free game offers from multiple sources
+- Show offer status:
+  - Active
+  - Upcoming
+  - Ended
+- Show start date and end date for each listing
+- Separate subscription-based offers from true free giveaways
+- Deduplicate overlapping offers across sources
+- Preserve source/store links for each listing
+- Highlight ending soon offers
+- Highlight upcoming offers
+- Manual sync endpoint for refreshing data
+
+## Supported Sources
+
+- **Epic Games Store**
+  - Tracks free promotions and giveaway windows
+- **Steam**
+  - Tracks free promotions and free-to-keep offers when available
+- **PlayStation Plus**
+  - Tracks subscription-included monthly titles
+- **GG.deals**
+  - Tracks free and discounted game listings
+- **IsThereAnyDeal**
+  - Tracks deal aggregation and giveaway-related listings
 
 ## Tech Stack
 
 - Next.js
 - TypeScript
 - Tailwind CSS
+- Jest
 
-## Getting Started
+## Project Structure
 
-Install dependencies:
+```text
+src/
+  app/
+    api/sync/route.ts
+    page.tsx
+    layout.tsx
+  components/
+    FilterBar.tsx
+    GameCard.tsx
+    SyncButton.tsx
+  lib/
+    adapters/
+      epic.ts
+      steam.ts
+      playstation.ts
+      ggdeals.ts
+      isthereanydeal.ts
+      index.ts
+    cache.ts
+    dedup.ts
+    status.ts
+    types.ts
 
-```bash
-npm install
+__tests__/
+  dedup.test.ts
+  status.test.ts
